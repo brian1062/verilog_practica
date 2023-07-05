@@ -16,13 +16,16 @@ module flash
 
     always @(posedge clock) begin
         if(i_reset) begin
-            leds_reg <= {{NB_LEDS{1'b0}},1'b1};//4'b0001;
+            leds_reg <= {{NB_LEDS{1'b0}},1'b0};//4'b0000;
         end
         else if (i_valid) begin
-            leds_reg <= ~leds_reg
+            leds_reg <= ~leds_reg;
+        end
+        else begin
+            leds_reg <= leds_reg;
         end
     end
 
-    o_led <= leds_reg
+    o_led <= leds_reg;
 
 endmodule

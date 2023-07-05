@@ -24,7 +24,7 @@ module count
     wire [NB_COUNTER -1 :0] limit_counter;
 
     assign limit_counter = (i_sw[2:1]==2'b00)? R0 : 
-                           (i_sw[2:1]==2'b01)? R1:
+                           (i_sw[2:1]==2'b01)? R1 :
                            (i_sw[2:1]==2'b10)? R2 : R3;
 
 
@@ -46,9 +46,9 @@ module count
             end
         end
         //En estado (0) todo se detiene sin alterar el estado actual del contador y del SR/FS.
-        else if (~i_sw[0])begin
-            valid <= 1'b0;
-        end
+        //else if (~i_sw[0])begin
+        //    valid <= 1'b0;
+        //end
         else begin 
             counter <= counter;
             valid <= valid;
