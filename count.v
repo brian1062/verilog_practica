@@ -31,7 +31,7 @@ module count
     always @(posedge clock) begin
         
         if(i_reset) begin
-            counter <=  {NB_COUNTER{1'b0}}//h'0//32'd0;
+            counter <=  {NB_COUNTER{1'b0}};//h'0//32'd0;
             valid <= 1'b0;
         end
         else if (i_sw[0])begin

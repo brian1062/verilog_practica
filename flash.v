@@ -26,6 +26,6 @@ module flash
         end
     end
 
-    o_led <= leds_reg;
+    assign o_led = leds_reg;
 
 endmodule
