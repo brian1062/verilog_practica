@@ -5,10 +5,10 @@ module count
     parameter NB_COUNTER =32
 )
 (
-    output              o_valid, //senial de habilitacion
-    input [NB_SW -1 : 0] i_sw,
-    input               i_reset,
-    input               clock
+    output                  o_valid, //senial de habilitacion
+    input [NB_SW -1 : 0]    i_sw,
+    input                   i_reset,
+    input                   clock
 );
 
     //Localparam
@@ -44,6 +44,10 @@ module count
                 counter <= counter + {{NB_COUNTER{1'b0}},1'b1};
                 valid <= 1'b0;
             end
+        end
+        //En estado (0) todo se detiene sin alterar el estado actual del contador y del SR/FS.
+        else if (~i_sw[0])begin
+            valid <= 1'b0;
         end
         else begin 
             counter <= counter;
