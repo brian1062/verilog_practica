@@ -54,6 +54,7 @@ module top
         (
             .o_led(sr_to_mux), 
             .i_valid(conect_count_to_sr),
+            .i_reverse(i_sw[3]),
             .i_reset(~i_reset),
             .clock(clock)
         );

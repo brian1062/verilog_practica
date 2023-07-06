@@ -7,14 +7,17 @@ module shiftreg
 (
     output [NB_LEDS-1 :0]   o_led,
     input                   i_valid, //la de habilitacion que entra
+    input                   i_reverse, //cambio de sentido
     input                   i_reset,
     input                   clock
+                       
 );
 
 
     //VARS
     reg [NB_LEDS-1 :0] shiftregisters;
 
+    reg direction;
 
     //OPT1 FOR
     integer ptr;
@@ -23,22 +26,20 @@ module shiftreg
     always @(posedge clock) begin
         if(i_reset)begin 
             shiftregisters <= {{NB_LEDS{1'b0}},1'b1};//4'b0001;
+            direction <= 1'b0;
         end 
         else if (i_valid)begin
-            //---------------------------------------------
-            //OP1 FOR
-            for(ptr=0;ptr<NB_LEDS-1;ptr=ptr+1) begin
-                shiftregisters[ptr +1] <= shiftregisters[ptr];
+            if(i_reverse)begin
+                direction <= ~direction;
             end
-            shiftregisters[0] <= shiftregisters[NB_LEDS-1];
-            //---------------------------------------------
 
-            //OP2 
-            //shiftregisters <= shiftregisters << 1;
-            //shiftregisters[0] <= shiftregisters[NB_LEDS-1]
+            if(direction == 1'b0)begin
+                shiftregisters <= {shiftregisters[NB_LEDS-2:0], shiftregisters[NB_LEDS-1]};
+            end
+            else begin
+                shiftregisters <= {shiftregisters[0], shiftregisters[NB_LEDS-1:1]};
+            end
 
-            //OP3
-            //shiftregisters <= {shiftregisters[NB_LEDS-2:0],shiftregisters[NB_LEDS-1]}
         end
         else begin 
             shiftregisters <= shiftregisters;
