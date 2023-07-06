@@ -25,7 +25,7 @@ module shiftreg
 
     always @(posedge clock) begin
         if(i_reset)begin 
-            shiftregisters <= {{NB_LEDS{1'b0}},1'b1};//4'b0001;
+            shiftregisters <= {{NB_LEDS-1{1'b0}},{1'b1}};//4'b0001;
             direction <= 1'b0;
         end 
         else if (i_valid)begin
@@ -43,6 +43,7 @@ module shiftreg
         end
         else begin 
             shiftregisters <= shiftregisters;
+            direction <= direction;
         end       
     end
 

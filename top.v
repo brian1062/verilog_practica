@@ -15,21 +15,16 @@ module top
     input i_reset,
     input clock
 );
+    wire                reset;
+    wire                conect_count_to_srfs;
+    //conectamos sr,fs al mux y o_mux nos da la salida 
+    wire [NB_LEDS-1:0]  o_mux_to_leds;
+    wire [NB_LEDS-1:0]  sr_to_mux;
+    wire [NB_LEDS-1:0]  fs_to_mux;
 
-    //localparam R0;
-    //Vars
-    wire conect_count_to_sr;
-    //wire [NB_LEDS -1 :0]conect_led_to_mux;
-
-    reg working_mode;//0->SR; 1->FS
-    //no quiero hacer 3 reg pero son medidas desesperadas
-    reg active_color_r;//TODO : CAMBIAR ESTO, FUNCIONA PERO QUIERO USAR 1 REGISTRO
-    reg active_color_g;
-    reg active_color_b;
-
-    wire [NB_LEDS-1 :0] fs_to_mux;
-    wire [NB_LEDS-1 :0] sr_to_mux;
-    wire [NB_LEDS-1 :0] connect_mux_to_leds;
+    //RGB
+    //wire [NB_LEDS-1:0]  ;
+    reg  [1:0]            color_led;
 
     //for vio
     wire [NB_SW-1 :0]   sw_from_vio;
@@ -39,108 +34,86 @@ module top
     wire [NB_SW-1 :0]   sw_wire;
     wire [NB_SW-1 :0]   btn_wire;
 
-    wire                reset;
+    
 
     assign sw_wire = (sel_mux) ? sw_from_vio:
                                  i_sw;
     assign btn_wire = (sel_mux) ? btn_from_vio:
                                   i_btn;
-    //Reset hardware o de vio
+    //Reset hardware o de vio                             
     assign reset = (sel_mux) ? ~reset_from_vio : 
                                ~i_reset;
 
-    count
-        #(
-            .NB_SW      (NB_SW-1 ),
-            .NB_COUNTER (NB_COUNTER)
-        )
-        u_count
-        (
-            .o_valid(conect_count_to_sr),
-            .i_sw (sw_wire[2:0]),
-            .i_reset(reset),
-            .clock(clock)
-
-        );
+    //Selecciono el modo de salida con btn[0]                           
+    assign o_mux_to_leds = (btn_wire[0]== 1'b1) ? fs_to_mux : sr_to_mux;
     
+
+
+    count
+    #(
+        .NB_SW      (NB_SW-1 ),
+        .NB_COUNTER (NB_COUNTER)
+    )
+    u_count
+    (
+        .o_valid(conect_count_to_srfs),
+        .i_sw (sw_wire[2:0]),
+        .i_reset(reset),
+        .clock(clock)
+
+    );
+
     shiftreg
-        #(
-           .NB_LEDS(NB_LEDS)
-        )
+    #(
+    .NB_LEDS(NB_LEDS)
+    )
 
-        u_shiftreg
-        (
-            .o_led(sr_to_mux), 
-            .i_valid(conect_count_to_sr),
-            .i_reverse(sw_wire[3]),
-            .i_reset(reset),
-            .clock(clock)
-        );
+    u_shiftreg
+    (
+        .o_led(sr_to_mux), 
+        .i_valid(conect_count_to_srfs),
+        .i_reverse(sw_wire[3]),
+        .i_reset(reset),
+        .clock(clock)
+    );
     flash
-        #(
-            .NB_LEDS(NB_LEDS)
-        )
+    #(
+        .NB_LEDS(NB_LEDS)
+    )
 
-        u_flash
-        (
-            .o_led(fs_to_mux),   
-            .i_valid(conect_count_to_sr), 
-            .i_reset(reset),
-            .clock(clock)
-        );
-// ver bien
+    u_flash
+    (
+        .o_led(fs_to_mux),   
+        .i_valid(conect_count_to_srfs), 
+        .i_reset(reset),
+        .clock(clock)
+    );
     always @(posedge clock) begin
-        if(reset) begin //inicializo var de estado
-            working_mode <= 1'b0;
-            active_color_r <= 1'b0;
-            active_color_b <= 1'b0;
-            active_color_g <= 1'b0;
+        if(reset)begin
+            color_led <= 2'b00;
         end
-        else if (btn_wire[0]) begin //pulso el boton cambio modo de trabajo
-            working_mode <= (working_mode==1'b0) ? 1'b1 : 1'b0;
+        else if(btn_wire[3:1]==3'b001) begin
+            color_led <= 2'b00;
         end
-
-        if(btn_wire[1]==1'b1)begin //red
-            active_color_r <= 1'b1;
-            active_color_b <= 1'b0;
-            active_color_g <= 1'b0;
+        else if(btn_wire[3:1]==3'b010) begin
+            color_led <= 2'b01;
         end
-        else if(btn_wire[2]==1'b1)begin //green
-            active_color_r <= 1'b0;
-            active_color_b <= 1'b0;
-            active_color_g <= 1'b1;
-        end
-        else if(btn_wire[3]==1'b1)begin // blue
-            active_color_r <= 1'b0;
-            active_color_b <= 1'b1;
-            active_color_g <= 1'b0;
+        else if(btn_wire[3:1]==3'b100) begin
+            color_led <= 2'b10;
         end
         else begin
-            working_mode <= working_mode;
-            //active_color <= active_color;
-            active_color_r <= active_color_r;
-            active_color_b <= active_color_b;
-            active_color_g <= active_color_g;
+            color_led <= color_led;
         end
     end
 
+    //Seleccion de color                           
+    assign o_led_r = (color_led == 2'b00) ? o_mux_to_leds : 4'b0000  ;
+    assign o_led_g = (color_led == 2'b01) ? o_mux_to_leds : 4'b0000  ;
+    assign o_led_b = (color_led == 2'b10) ? o_mux_to_leds : 4'b0000  ;
+    assign o_led   =  btn_wire;//   = (btn_wire[3:1]==3b'001) ? o_mux_to_leds : 4b'0000  ;
 
-    assign o_led_r = (active_color_r==1'b1) ?
-                                    ((working_mode==1'b0) ? sr_to_mux : fs_to_mux):
-                                    4'b0000;
-    assign o_led_g= (active_color_g==1'b1) ?
-                                    ((working_mode==1'b0) ? sr_to_mux : fs_to_mux):
-                                    4'b0000;
-    assign o_led_b= (active_color_b==1'b1) ?
-                                    ((working_mode==1'b0) ? sr_to_mux : fs_to_mux):
-                                    4'b0000;
 
-    //assign o_led[0]= working_mode;
-    assign o_led[NB_LEDS-1 : 0]= {active_color_b,
-                                 active_color_g,
-                                 active_color_r,
-                                 working_mode
-                                 };
+
     ila
     u_ila
    (.clk_0(clock),

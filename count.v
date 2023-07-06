@@ -12,10 +12,10 @@ module count
 );
 
     //Localparam
-    localparam R0 = 2**(NB_COUNTER-10)-1;
-    localparam R1 = 2**(NB_COUNTER-11)-1;
-    localparam R2 = 2**(NB_COUNTER-12)-1;
-    localparam R3 = 2**(NB_COUNTER-13)-1;//Mas rapida pq tengo menos limit
+    localparam R0 = (2**(NB_COUNTER-10))-1;
+    localparam R1 = (2**(NB_COUNTER-11))-1;
+    localparam R2 = (2**(NB_COUNTER-12))-1;
+    localparam R3 = (2**(NB_COUNTER-13))-1;//Mas rapida pq tengo menos limit
 
 
     //Vars
@@ -41,7 +41,7 @@ module count
                 valid <= 1'b1;
             end
             else begin 
-                counter <= counter + {{NB_COUNTER{1'b0}},1'b1};
+                counter <= counter + {{NB_COUNTER-1{1'b0}},1'b1};
                 valid <= 1'b0;
             end
         end
