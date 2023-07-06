@@ -8,6 +8,7 @@ module top
     output [NB_LEDS-1:0] o_led_r,
     output [NB_LEDS-1:0] o_led_b,
     output [NB_LEDS-1:0] o_led_g,
+    output [NB_LEDS-1:0] o_led,
 
     input [NB_SW-1:0] i_btn,
     input [NB_SW-1:0]  i_sw,
@@ -116,6 +117,13 @@ module top
     assign o_led_b= (active_color_b==1'b1) ?
                                     ((working_mode==1'b0) ? sr_to_mux : fs_to_mux):
                                     4'b0000;
+
+    //assign o_led[0]= working_mode;
+    assign o_led[NB_LEDS-1 : 0]= {active_color_b,
+                                 active_color_g,
+                                 active_color_r,
+                                 working_mode
+                                };
     /*assign o_led_r = (active_color == 2'b00 && working_mode == 1'b0) ? sr_to_mux : 4'b0000;
     assign o_led_g = (active_color == 2'b01 && working_mode == 1'b0) ? sr_to_mux : 4'b0000;
     assign o_led_b = (active_color == 2'b10 && working_mode == 1'b0) ? sr_to_mux : 4'b0000;
