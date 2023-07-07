@@ -17,7 +17,7 @@ module shiftreg
     //VARS
     reg [NB_LEDS-1 :0] shiftregisters;
 
-    reg direction;
+    //reg direction;
 
     //OPT1 FOR
     integer ptr;
@@ -26,14 +26,16 @@ module shiftreg
     always @(posedge clock) begin
         if(i_reset)begin 
             shiftregisters <= {{NB_LEDS-1{1'b0}},{1'b1}};//4'b0001;
-            direction <= 1'b0;
+            //direction <= 1'b0;
         end 
         else if (i_valid)begin
-            if(i_reverse)begin
-                direction <= ~direction;
-            end
+            //if(i_reverse)begin
+            //    direction <= ~direction;
+            //end
 
-            if(direction == 1'b0)begin
+            //if(direction == 1'b0)begin
+            
+            if(~i_reverse)begin
                 shiftregisters <= {shiftregisters[NB_LEDS-2:0], shiftregisters[NB_LEDS-1]};
             end
             else begin
@@ -43,7 +45,7 @@ module shiftreg
         end
         else begin 
             shiftregisters <= shiftregisters;
-            direction <= direction;
+            //direction <= direction;
         end       
     end
 

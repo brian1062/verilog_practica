@@ -22,7 +22,7 @@ module shiftreg2led
     //VARS
     reg [NB_LEDS-1 :0] shiftregisters;
 
-    reg direction;
+    //reg direction;
 
     //OPT1 FOR
     integer ptr;
@@ -31,14 +31,15 @@ module shiftreg2led
     always @(posedge clock) begin
         if(i_reset)begin 
             shiftregisters <= o_3;//4'b0000;
-            direction <= 1'b0;
+            //direction <= 1'b0;
         end 
         else if (i_valid)begin
-            if(i_reverse)begin
-                direction <= ~direction;
-            end
+            //if(i_reverse)begin
+            //    direction <= ~direction;//creo que esto esta modelado como un boton
+            //end
 
-            if(direction == 1'b0)begin
+            //if(direction == 1'b0)begin
+            if(~i_reverse)begin    
                 shiftregisters <= (shiftregisters== o_3) ?  o_1 :
                                   (shiftregisters== o_1) ?  o_2 :
                                                             o_3 ;
@@ -52,7 +53,7 @@ module shiftreg2led
         end
         else begin 
             shiftregisters <= shiftregisters;
-            direction <= direction;
+            //direction <= direction;
         end       
     end
 
