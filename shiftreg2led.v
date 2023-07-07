@@ -1,5 +1,5 @@
 //Segunda jerarquia
-module shiftreg
+module shiftreg2led
 #(
     parameter NB_LEDS = 4
 
@@ -12,8 +12,13 @@ module shiftreg
     input                   clock
                        
 );
+    //Localparam
+    localparam o_1 = 4'b1001;
+    localparam o_2 = 4'b0110;
+    localparam o_3 = 4'b0000;
+    //localparam R3 = (2**(NB_COUNTER-13))-1;
 
-
+    
     //VARS
     reg [NB_LEDS-1 :0] shiftregisters;
 
@@ -25,21 +30,24 @@ module shiftreg
 
     always @(posedge clock) begin
         if(i_reset)begin 
-            shiftregisters <= {{NB_LEDS-1{1'b0}},{1'b1}};//4'b0001;
+            shiftregisters <= o_3;//4'b0000;
             //direction <= 1'b0;
         end 
         else if (i_valid)begin
             //if(i_reverse)begin
-            //    direction <= ~direction;
+            //    direction <= ~direction;//creo que esto esta modelado como un boton
             //end
 
             //if(direction == 1'b0)begin
-            
-            if(~i_reverse)begin
-                shiftregisters <= {shiftregisters[NB_LEDS-2:0], shiftregisters[NB_LEDS-1]};
+            if(~i_reverse)begin    
+                shiftregisters <= (shiftregisters== o_3) ?  o_1 :
+                                  (shiftregisters== o_1) ?  o_2 :
+                                                            o_3 ;
             end
             else begin
-                shiftregisters <= {shiftregisters[0], shiftregisters[NB_LEDS-1:1]};
+                shiftregisters <= (shiftregisters== o_3) ?  o_2 :
+                                  (shiftregisters== o_2) ?  o_1 :
+                                                            o_3 ;
             end
 
         end
