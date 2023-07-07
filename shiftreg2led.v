@@ -1,5 +1,5 @@
 //Segunda jerarquia
-module shiftreg
+module shiftreg2led
 #(
     parameter NB_LEDS = 4
 

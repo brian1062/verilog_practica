@@ -21,10 +21,12 @@ module top
     wire [NB_LEDS-1:0]  o_mux_to_leds;
     wire [NB_LEDS-1:0]  sr_to_mux;
     wire [NB_LEDS-1:0]  fs_to_mux;
+    wire [NB_LEDS-1:0]  fs2led_to_mux;
 
     //RGB
     //wire [NB_LEDS-1:0]  ;
-    reg  [1:0]            color_led;
+    reg  [1:0]            color_led;//00->red 01->green 10->blue
+    reg  [1:0]            work_state;//00->sr , 01->fs , 10->sr2led
 
     //for vio
     wire [NB_SW-1 :0]   sw_from_vio;
@@ -45,7 +47,7 @@ module top
                                ~i_reset;
 
     //Selecciono el modo de salida con btn[0]                           
-    assign o_mux_to_leds = (btn_wire[0]== 1'b1) ? fs_to_mux : sr_to_mux;
+    //assign o_mux_to_leds = (btn_wire[0]== 1'b1) ? fs_to_mux : sr_to_mux;
     
 
 
@@ -88,11 +90,35 @@ module top
         .i_reset(reset),
         .clock(clock)
     );
+    
+    shiftreg2led
+    #(
+        .NB_LEDS(NB_LEDS)
+    )
+    u_shiftreg2led
+    (
+        .o_led(fs2led_to_mux),
+        .i_valid(conect_count_to_srfs), 
+        .i_reverse(sw_wire[3]), 
+        .i_reset(reset),
+        .clock(clock)
+                        
+    );
+
+
+
     always @(posedge clock) begin
         if(reset)begin
             color_led <= 2'b00;
+            work_state <= 2'b00;
         end
-        else if(btn_wire[3:1]==3'b001) begin
+        if(btn_wire[0]==1'b1)begin
+            work_state <= (work_state == 2'b00) ? 2'b01 :
+                          (work_state == 2'b01) ? 2'b10 :
+                                                  2'b00 ;
+        end
+        //selector de color
+        if(btn_wire[3:1]==3'b001) begin
             color_led <= 2'b00;
         end
         else if(btn_wire[3:1]==3'b010) begin
@@ -102,10 +128,15 @@ module top
             color_led <= 2'b10;
         end
         else begin
-            color_led <= color_led;
+            color_led  <= color_led;
+            work_state <= work_state;
         end
     end
 
+    assign o_mux_to_leds = (work_state == 2'b00) ? fs_to_mux :
+                           (work_state == 2'b01) ? sr_to_mux :
+                                                fs2led_to_mux;
+    
     //Seleccion de color                           
     assign o_led_r = (color_led == 2'b00) ? o_mux_to_leds : 4'b0000  ;
     assign o_led_g = (color_led == 2'b01) ? o_mux_to_leds : 4'b0000  ;
