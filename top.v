@@ -28,6 +28,8 @@ module top
     reg  [1:0]            color_led;//00->red 01->green 10->blue
     reg  [1:0]            work_state;//00->sr , 01->fs , 10->sr2led
 
+    //para guardar el estado del btn para que funcione por flanco
+    reg                 btn_saver; 
     //for vio
     wire [NB_SW-1 :0]   sw_from_vio;
     wire [NB_SW-1 :0]   btn_from_vio;
@@ -109,27 +111,37 @@ module top
 
     always @(posedge clock) begin
         if(reset)begin
-            color_led <= 2'b00;
+            color_led  <= 2'b00;
             work_state <= 2'b00;
-        end
-        if(btn_wire[0]==1'b1)begin
-            work_state <= (work_state == 2'b00) ? 2'b01 :
-                          (work_state == 2'b01) ? 2'b10 :
-                                                  2'b00 ;
-        end
-        //selector de color
-        if(btn_wire[3:1]==3'b001) begin
-            color_led <= 2'b00;
-        end
-        else if(btn_wire[3:1]==3'b010) begin
-            color_led <= 2'b01;
-        end
-        else if(btn_wire[3:1]==3'b100) begin
-            color_led <= 2'b10;
+            btn_saver  <= btn_wire[0];
         end
         else begin
+            //logica para selector de modo de trabajo
+            //btn_saver  <= btn_wire[0];//pa mi esto va al final
+            if(btn_wire[0]==1'b1 && btn_saver==1'b0)begin //TODO: HACER POR FLAAAANCO!!!!!!!!!
+                work_state <= (work_state == 2'b00) ? 2'b01 :
+                              (work_state == 2'b01) ? 2'b10 :
+                                                      2'b00 ;
+            end
+            else begin 
+                work_state <= work_state;
+            end
+
+            //Logica para el selector de color
+            if(btn_wire[3:1]==3'b001) begin
+                color_led <= 2'b00;
+            end
+            else if(btn_wire[3:1]==3'b010) begin
+                color_led <= 2'b01;
+            end
+            else if(btn_wire[3:1]==3'b100) begin
+                color_led <= 2'b10;
+            end
+            else begin
             color_led  <= color_led;
-            work_state <= work_state;
+            //work_state <= work_state;
+            end
+            btn_saver  <= btn_wire[0];
         end
     end
 
