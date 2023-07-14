@@ -118,7 +118,7 @@ module top
         else begin
             //logica para selector de modo de trabajo
             //btn_saver  <= btn_wire[0];//pa mi esto va al final
-            if(btn_wire[0]==1'b1 && btn_saver==1'b0)begin //TODO: HACER POR FLAAAANCO!!!!!!!!!
+            if(btn_wire[0]==1'b1 && btn_saver==1'b0)begin 
                 work_state <= (work_state == 2'b00) ? 2'b01 :
                               (work_state == 2'b01) ? 2'b10 :
                                                       2'b00 ;
