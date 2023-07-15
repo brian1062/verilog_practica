@@ -23,7 +23,7 @@ module shiftreg
     integer ptr;
 
 
-    always @(posedge clock) begin
+    always @(posedge clock or posedge i_reset) begin
         if(i_reset)begin 
             shiftregisters <= {{NB_LEDS-1{1'b0}},{1'b1}};//4'b0001;
             //direction <= 1'b0;

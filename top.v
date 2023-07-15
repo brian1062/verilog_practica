@@ -109,7 +109,7 @@ module top
 
 
 
-    always @(posedge clock) begin
+    always @(posedge clock or posedge reset) begin
         if(reset)begin
             color_led  <= 2'b00;
             work_state <= 2'b00;
