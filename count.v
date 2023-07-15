@@ -28,7 +28,7 @@ module count
                            (i_sw[2:1]==2'b10)? R2 : R3;
 
 
-    always @(posedge clock) begin
+    always @(posedge clock or posedge i_reset) begin
         
         if(i_reset) begin
             counter <=  {NB_COUNTER{1'b0}};//h'0//32'd0;

@@ -28,7 +28,7 @@ module shiftreg2led
     integer ptr;
 
 
-    always @(posedge clock) begin
+    always @(posedge clock or posedge i_reset) begin
         if(i_reset)begin 
             shiftregisters <= o_3;//4'b0000;
             //direction <= 1'b0;

@@ -14,7 +14,7 @@ module flash
 
     integer ptr;
 
-    always @(posedge clock) begin
+    always @(posedge clock or posedge i_reset) begin
         if(i_reset) begin
             leds_reg <= {NB_LEDS{1'b1}};//4'b1111;por consigna
         end
